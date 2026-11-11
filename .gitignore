@@ -1,0 +1,11 @@
+frontend/node_modules/
+frontend/dist/
+backend/target/
+backend/data/
+backend/.mvn/apache-maven-*/
+.vscode/
+.taste-skill/
+PLAN.md
+PROGRESS.md
+*.log
+.DS_Store
