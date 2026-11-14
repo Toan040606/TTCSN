@@ -7,7 +7,9 @@ import java.time.*;
 @Entity
 @Table(indexes = {
     @Index(name = "idx_appointment_code", columnList = "code", unique = true),
-    @Index(name = "idx_appointment_date", columnList = "appointmentDate")
+    @Index(name = "idx_appointment_date", columnList = "appointmentDate"),
+    @Index(name = "idx_appointment_doctor_slot", columnList = "doctor_id,appointmentDate,appointmentTime,status"),
+    @Index(name = "idx_appointment_facility_date", columnList = "facility_id,appointmentDate")
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Appointment {
@@ -36,6 +38,7 @@ public class Appointment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime checkedInAt;
+    private LocalDateTime reminderSentAt;
 
     @PrePersist
     void onCreate() { if (createdAt == null) createdAt = LocalDateTime.now(); }

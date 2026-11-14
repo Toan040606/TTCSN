@@ -21,17 +21,17 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (users.count() > 0) return;
-        var admin = users.save(account("admin", "Quản trị hệ thống", Role.ADMIN));
-        users.save(account("letan", "Nguyễn Thu Hà", Role.RECEPTIONIST));
-        var doctorAccount1 = users.save(account("bacsi.an", "BS.CKII Nguyễn Minh An", Role.DOCTOR));
-        var doctorAccount2 = users.save(account("bacsi.lan", "PGS.TS Trần Ngọc Lan", Role.DOCTOR));
-        var doctorAccount3 = users.save(account("bacsi.hung", "ThS.BS Lê Mạnh Hùng", Role.DOCTOR));
+        if (users.count() > 0) { migrateFacilityAssignments(); return; }
 
         Facility cs1 = facilities.save(Facility.builder().code("CS1").name("Cơ sở 1 — Hà Nội")
             .address("78 Giải Phóng, Phương Mai, Đống Đa, Hà Nội").phone("1900 888 866").build());
         Facility cs2 = facilities.save(Facility.builder().code("CS2").name("Cơ sở 2 — Hà Nam")
             .address("Phường Liêm Tuyền, TP. Phủ Lý, Hà Nam").phone("1900 888 866").build());
+        users.save(account("admin", "Quản trị hệ thống", Role.ADMIN, null));
+        users.save(account("letan", "Nguyễn Thu Hà", Role.RECEPTIONIST, cs1));
+        var doctorAccount1 = users.save(account("bacsi.an", "BS.CKII Nguyễn Minh An", Role.DOCTOR, cs1));
+        var doctorAccount2 = users.save(account("bacsi.lan", "PGS.TS Trần Ngọc Lan", Role.DOCTOR, cs1));
+        var doctorAccount3 = users.save(account("bacsi.hung", "ThS.BS Lê Mạnh Hùng", Role.DOCTOR, cs2));
         Specialty tim = specialties.save(Specialty.builder().code("TIM").name("Tim mạch").icon("heart-pulse")
             .description("Khám, chẩn đoán và điều trị các bệnh lý tim mạch.").build());
         Specialty thanKinh = specialties.save(Specialty.builder().code("TK").name("Thần kinh").icon("brain")
@@ -57,10 +57,17 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    private UserAccount account(String username, String name, Role role) {
-        return UserAccount.builder().username(username).password(encoder.encode("BachMai@123")).fullName(name).role(role).enabled(true).build();
+    private UserAccount account(String username, String name, Role role, Facility facility) {
+        return UserAccount.builder().username(username).password(encoder.encode("BachMai@123")).fullName(name).role(role).facility(facility).enabled(true).build();
     }
     private WorkSchedule schedule(Doctor d, Facility f, LocalDate date, Shift shift, String room) {
         return WorkSchedule.builder().doctor(d).facility(f).workDate(date).shift(shift).capacity(18).open(true).room(room).build();
+    }
+    private void migrateFacilityAssignments() {
+        facilities.findAll().stream().filter(f -> "CS1".equals(f.getCode())).findFirst().ifPresent(cs1 ->
+            users.findByUsername("letan").filter(u -> u.getFacility() == null).ifPresent(u -> { u.setFacility(cs1); users.save(u); }));
+        doctors.findAll().forEach(d -> { if (d.getAccount() != null && d.getAccount().getFacility() == null) {
+            d.getAccount().setFacility(d.getFacility()); users.save(d.getAccount());
+        }});
     }
 }
