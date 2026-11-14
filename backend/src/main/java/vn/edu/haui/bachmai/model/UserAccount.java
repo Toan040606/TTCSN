@@ -19,6 +19,8 @@ public class UserAccount {
     private String phone;
     @Enumerated(EnumType.STRING) @Column(nullable = false)
     private Role role;
-    @Column(nullable = false)
+    @ManyToOne
+    private Facility facility;
+    @Builder.Default @Column(nullable = false)
     private boolean enabled = true;
 }

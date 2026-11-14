@@ -6,10 +6,12 @@
 
 - Bệnh nhân xem cơ sở, chuyên khoa, bác sĩ và khung giờ còn trống.
 - Đặt lịch khám, nhận mã hẹn và QR Code.
-- Tra cứu lịch sử bằng số điện thoại + OTP mô phỏng; xem bệnh án và hủy lịch hợp lệ.
-- Lễ tân tìm lịch hẹn, xác nhận check-in và cấp số thứ tự.
-- Bác sĩ xem hàng đợi, ghi triệu chứng, chẩn đoán, đơn thuốc và hoàn tất lượt khám.
-- Quản trị viên xem thống kê, tạo/khóa tài khoản, phân công và đóng/mở ca trực.
+- Tra cứu lịch sử bằng số điện thoại + OTP; xem bệnh án, đổi lịch và hủy lịch hợp lệ.
+- Lễ tân tìm lịch hẹn, đặt lịch tại quầy, quét QR, xác nhận check-in và cấp số thứ tự.
+- Bác sĩ xem hàng đợi, tra cứu lịch sử, ghi chẩn đoán, kê thuốc theo liều dùng và hoàn tất lượt khám.
+- Quản trị viên quản lý tài khoản, danh mục bác sĩ/chuyên khoa, ca trực và báo cáo theo cơ sở/khung giờ.
+- Outbox Email/SMS lưu xác nhận, thay đổi, hủy và tự động tạo nhắc lịch trước một ngày.
+- Cổng thông tin công khai về bác sĩ, dịch vụ, thiết bị, bài viết y khoa và hỗ trợ tư vấn.
 - JWT và phân quyền cho `ADMIN`, `RECEPTIONIST`, `DOCTOR`.
 
 ## Công nghệ
@@ -60,6 +62,7 @@ Mở terminal thứ nhất để chạy backend:
 
 ```powershell
 cd backend
+$env:EXPOSE_DEV_OTP = 'true'
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -81,6 +84,7 @@ Nếu dùng Command Prompt (`cmd.exe`), các lệnh tương ứng là:
 
 ```bat
 cd backend
+set "EXPOSE_DEV_OTP=true"
 mvnw.cmd spring-boot:run
 ```
 
@@ -100,7 +104,9 @@ Nếu PowerShell hỏi quyền truy cập mạng trong lần đầu chạy, cho 
 | Nhân viên lễ tân | `letan` | `BachMai@123` |
 | Bác sĩ | `bacsi.an` | `BachMai@123` |
 
-OTP được hiển thị ngay trên giao diện tra cứu trong môi trường demo.
+OTP chỉ được hiển thị trên giao diện khi chạy demo với `EXPOSE_DEV_OTP=true`. Giá trị mặc định là `false` để tránh trả OTP trong response ở môi trường thật. Khi tích hợp nhà cung cấp SMS/Email, giữ giá trị này là `false`.
+
+Tài khoản `letan` được phân công tại CS1. Tài khoản bác sĩ chỉ đăng nhập tại cơ sở đã gắn với hồ sơ bác sĩ.
 
 ## Cấu hình MySQL tùy chọn
 
@@ -142,12 +148,28 @@ cd ..\frontend
 npm run build
 ```
 
+Kiểm thử tải NF01 bằng k6 sau khi cài k6 trên máy kiểm thử và khởi động backend:
+
+```powershell
+k6 run .\load-test.js
+```
+
+Kịch bản tăng dần đến 1.000 người dùng ảo, yêu cầu tỷ lệ lỗi dưới 1% và p95 dưới 2 giây. Kết quả phụ thuộc cấu hình máy chủ/database nên cần chạy lại trên môi trường triển khai. Health check phục vụ giám sát tại `GET /api/public/health`.
+
 Các nhóm API chính:
 
 - `/api/public/**`: danh mục, khung giờ, đặt lịch, OTP, tra cứu và hủy lịch.
 - `/api/auth/login`: đăng nhập cán bộ.
-- `/api/staff/**`: tiếp đón, hàng đợi và bệnh án.
-- `/api/admin/**`: thống kê, tài khoản và lịch trực.
+- `/api/staff/**`: đặt lịch tại quầy, QR check-in, tiếp đón, hàng đợi và bệnh án.
+- `/api/admin/**`: báo cáo, outbox thông báo, tài khoản, danh mục và lịch trực.
+
+## Cấu hình bảo mật và thông báo
+
+- `H2_CONSOLE_ENABLED=false`: H2 Console bị tắt mặc định; chỉ bật tạm thời khi phát triển nội bộ.
+- `EXPOSE_DEV_OTP=false`: không trả OTP về frontend. Đặt `true` duy nhất cho demo local.
+- `JWT_SECRET`: bắt buộc thay bằng chuỗi ngẫu nhiên dài khi triển khai thật.
+- Job nhắc lịch chạy lúc 08:00 hằng ngày; có thể đổi qua `APP_REMINDER_CRON`/thuộc tính `app.reminder-cron`.
+- `NotificationLog` là outbox bền vững. Provider mặc định `LOG` mô phỏng gửi thành công để chạy local. Điểm tích hợp SMTP/SMS gateway nằm trong `NotificationService`; khóa nhà cung cấp phải truyền bằng biến môi trường, không commit vào Git.
 
 ## Cấu trúc và tài liệu
 

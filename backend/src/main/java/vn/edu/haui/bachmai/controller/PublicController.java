@@ -21,11 +21,15 @@ public class PublicController {
 
     @GetMapping("/facilities") public List<Facility> facilities() { return facilities.findAll(); }
     @GetMapping("/specialties") public List<Specialty> specialties() { return specialties.findAll(); }
+    @GetMapping("/health") public Map<String, Object> health() {
+        return Map.of("status", "UP", "time", LocalDateTime.now(), "database", facilities.count() >= 0 ? "UP" : "DOWN");
+    }
 
     @GetMapping("/doctors")
-    public List<Doctor> doctors(@RequestParam(required = false) Long specialtyId, @RequestParam(required = false) Long facilityId) {
-        if (specialtyId != null && facilityId != null) return doctors.findBySpecialtyIdAndFacilityIdAndActiveTrue(specialtyId, facilityId);
-        return doctors.findByActiveTrue();
+    public List<DoctorView> doctors(@RequestParam(required = false) Long specialtyId, @RequestParam(required = false) Long facilityId) {
+        List<Doctor> result = specialtyId != null && facilityId != null
+            ? doctors.findBySpecialtyIdAndFacilityIdAndActiveTrue(specialtyId, facilityId) : doctors.findByActiveTrue();
+        return result.stream().map(this::doctorView).toList();
     }
 
     @GetMapping("/doctors/{doctorId}/slots")
@@ -45,5 +49,15 @@ public class PublicController {
     @PostMapping("/appointments/{code}/cancel")
     public AppointmentView cancel(@PathVariable String code, @Valid @RequestBody CancelRequest request) {
         return appointmentService.cancel(code, request.lookupToken());
+    }
+
+    @PutMapping("/appointments/{code}/reschedule")
+    public AppointmentView reschedule(@PathVariable String code, @Valid @RequestBody RescheduleRequest request) {
+        return appointmentService.reschedule(code, request);
+    }
+
+    private DoctorView doctorView(Doctor d) {
+        return new DoctorView(d.getId(), d.getCode(), d.getFullName(), d.getTitle(), d.getBio(), d.getAvatarUrl(),
+            d.getSpecialty().getId(), d.getSpecialty().getName(), d.getFacility().getId(), d.getFacility().getName());
     }
 }

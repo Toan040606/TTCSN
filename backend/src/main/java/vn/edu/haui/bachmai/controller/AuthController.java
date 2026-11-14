@@ -20,7 +20,10 @@ public class AuthController {
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         var user = users.findByUsername(request.username()).orElseThrow();
+        if (user.getFacility() != null && request.facilityCode() != null &&
+            !user.getFacility().getCode().equalsIgnoreCase(request.facilityCode()))
+            throw new IllegalArgumentException("Tài khoản không được phân công tại cơ sở đã chọn");
         return new LoginResponse(jwt.generate(user.getUsername(), user.getRole().name()), user.getId(),
-            user.getUsername(), user.getFullName(), user.getRole());
+            user.getUsername(), user.getFullName(), user.getRole(), user.getFacility() == null ? null : user.getFacility().getCode());
     }
 }

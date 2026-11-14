@@ -22,5 +22,6 @@ public class Doctor {
     private Facility facility;
     @OneToOne
     private UserAccount account;
+    @Builder.Default
     private boolean active = true;
 }
