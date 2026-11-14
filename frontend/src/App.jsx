@@ -5,6 +5,7 @@ import Booking from './pages/Booking'
 import Lookup from './pages/Lookup'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Information from './pages/Information'
 import { auth } from './api'
 
 function Protected({ children }) {
@@ -17,6 +18,7 @@ export default function App() {
       <Route index element={<Home />} />
       <Route path="/dat-lich" element={<Booking />} />
       <Route path="/tra-cuu" element={<Lookup />} />
+      <Route path="/thong-tin" element={<Information />} />
     </Route>
     <Route path="/dang-nhap" element={<Login />} />
     <Route path="/dashboard/*" element={<Protected><Dashboard /></Protected>} />
