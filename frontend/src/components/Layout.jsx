@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
-import { CalendarPlus, Menu, Phone, Search, ShieldCheck, X } from 'lucide-react'
+import { CalendarPlus, Menu, Phone, ShieldCheck, X } from 'lucide-react'
 
 export default function Layout() {
   const [open, setOpen] = useState(false)
@@ -27,7 +27,7 @@ export default function Layout() {
         <div><h4>Dịch vụ nhanh</h4><Link to="/dat-lich">Đặt lịch khám</Link><Link to="/tra-cuu">Tra cứu lịch hẹn</Link><Link to="/dang-nhap">Cổng cán bộ</Link></div>
         <div><h4>Liên hệ</h4><p>78 Giải Phóng, Đống Đa, Hà Nội</p><p>Hotline: 1900 888 866</p><p>Email: cskh@bachmai.gov.vn</p></div>
       </div>
-      <div className="copyright">© 2026 Bệnh viện Bạch Mai · Hệ thống đồ án Nhóm 14</div>
+      <div className="copyright">© 2026 Bệnh viện Bạch Mai</div>
     </footer>
   </div>
 }
