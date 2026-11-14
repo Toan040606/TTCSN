@@ -4,7 +4,7 @@ import { CalendarPlus, Menu, Phone, Search, ShieldCheck, X } from 'lucide-react'
 
 export default function Layout() {
   const [open, setOpen] = useState(false)
-  const nav = [{to:'/', label:'Trang chủ'}, {to:'/dat-lich', label:'Đặt lịch khám'}, {to:'/tra-cuu', label:'Tra cứu lịch hẹn'}]
+  const nav = [{to:'/', label:'Trang chủ'}, {to:'/thong-tin', label:'Thông tin & dịch vụ'}, {to:'/dat-lich', label:'Đặt lịch khám'}, {to:'/tra-cuu', label:'Tra cứu lịch hẹn'}]
   return <div className="site-shell">
     <div className="topbar"><div className="container topbar-inner"><span><Phone size={14}/> Tổng đài: <b>1900 888 866</b></span><span><ShieldCheck size={14}/> Nền tảng đặt lịch chính thức</span></div></div>
     <header className="header">

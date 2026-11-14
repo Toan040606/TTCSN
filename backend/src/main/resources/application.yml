@@ -15,7 +15,7 @@ spring:
         format_sql: true
   h2:
     console:
-      enabled: true
+      enabled: ${H2_CONSOLE_ENABLED:false}
       path: /h2-console
 
 server:
@@ -25,3 +25,5 @@ app:
   jwt-secret: ${JWT_SECRET:bach-mai-appointment-system-secret-key-2026-change-in-production}
   jwt-expiration-ms: 28800000
   cors-origin: ${CORS_ORIGIN:http://localhost:5173}
+  expose-dev-otp: ${EXPOSE_DEV_OTP:false}
+  notification-provider: ${NOTIFICATION_PROVIDER:LOG}

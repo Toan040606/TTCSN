@@ -1,7 +1,7 @@
 const BASE = import.meta.env.VITE_API_URL || ''
 
 export async function api(path, options = {}) {
-  const token = localStorage.getItem('bm_token')
+  const token = localStorage.getItem('bm_token') || sessionStorage.getItem('bm_token')
   const response = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
@@ -19,13 +19,18 @@ export async function api(path, options = {}) {
 }
 
 export const auth = {
-  get: () => JSON.parse(localStorage.getItem('bm_user') || 'null'),
-  set: data => {
-    localStorage.setItem('bm_token', data.token)
-    localStorage.setItem('bm_user', JSON.stringify(data))
+  get: () => JSON.parse(localStorage.getItem('bm_user') || sessionStorage.getItem('bm_user') || 'null'),
+  set: (data, remember = true) => {
+    const storage = remember ? localStorage : sessionStorage
+    localStorage.removeItem('bm_token'); localStorage.removeItem('bm_user')
+    sessionStorage.removeItem('bm_token'); sessionStorage.removeItem('bm_user')
+    storage.setItem('bm_token', data.token)
+    storage.setItem('bm_user', JSON.stringify(data))
   },
   clear: () => {
     localStorage.removeItem('bm_token')
     localStorage.removeItem('bm_user')
+    sessionStorage.removeItem('bm_token')
+    sessionStorage.removeItem('bm_user')
   }
 }

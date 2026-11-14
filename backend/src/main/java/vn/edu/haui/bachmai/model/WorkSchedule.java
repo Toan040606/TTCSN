@@ -20,7 +20,7 @@ public class WorkSchedule {
     private Shift shift;
     @Column(nullable = false)
     private int capacity;
-    @Column(nullable = false)
+    @Builder.Default @Column(nullable = false)
     private boolean open = true;
     private String room;
 }
